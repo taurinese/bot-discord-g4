@@ -8,6 +8,8 @@ import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
+import java.util.Random;
+
 @Component
 public class Bot extends ListenerAdapter {
     private Guild guild;
@@ -28,5 +30,15 @@ public class Bot extends ListenerAdapter {
             default:
                 event.reply("I'm a teapot").setEphemeral(true).queue();
         }
+    }
+
+    private static int getRandomNumberInRange(int min, int max) {
+
+        if (min >= max) {
+            throw new IllegalArgumentException("max must be greater than min");
+        }
+
+        Random r = new Random();
+        return r.nextInt((max - min) + 1) + min;
     }
 }
