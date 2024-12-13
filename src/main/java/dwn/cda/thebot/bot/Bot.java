@@ -3,6 +3,7 @@ package dwn.cda.thebot.bot;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import org.jetbrains.annotations.NotNull;
@@ -40,5 +41,21 @@ public class Bot extends ListenerAdapter {
 
         Random r = new Random();
         return r.nextInt((max - min) + 1) + min;
+    }
+
+
+    public void player(MessageReceivedEvent event) {
+        var opponent = event.getMessage().getMentions().getMembers().get(0);
+        var player = event.getMember();
+
+        if (opponent.equals(player)) {
+            event.getChannel().sendMessage("Vous ne pouvez pas vous battre contre vous-même !").queue();
+            return;
+        }
+
+        int hpPlayer = 1000;
+        int hpOpponent = 1000;
+        int hitPlayer = getRandomNumberInRange(1, 100);
+        int hitOpponent = getRandomNumberInRange(1, 100);
     }
 }
