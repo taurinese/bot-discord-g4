@@ -21,6 +21,12 @@ public class Bot extends ListenerAdapter {
 
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
-        super.onSlashCommandInteraction(event);
+        switch (event.getName()) {
+            case "hello":
+                event.reply("Hello World").queue();
+                break;
+            default:
+                event.reply("I'm a teapot").setEphemeral(true).queue();
+        }
     }
 }
