@@ -5,7 +5,6 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
@@ -44,11 +43,12 @@ public class Bot extends ListenerAdapter {
                 event.reply("Hello World").queue();
                 break;
             case "duel":
+
                 //  l'utilisateur à défier
                 User opponent = Objects.requireNonNull(event.getOption("opponent")).getAsUser();
+                User player = event.getUser();
 
-                // Message
-                event.reply(String.format("The duel between <@%s> and <@%s> is about to begin!", event.getUser().getId(), opponent.getId())).queue();
+                fight(player, opponent, event);
                 break;
             case "score":
                 String userId = event.getUser().getId();
@@ -70,9 +70,7 @@ public class Bot extends ListenerAdapter {
     }
 
 
-    public void player(MessageReceivedEvent event) {
-        var opponent = event.getMessage().getMentions().getMembers().get(0);
-        var player = event.getMember();
+    public void fight(User player, User opponent, SlashCommandInteractionEvent event) {
 
         if (opponent.equals(player)) {
             event.getChannel().sendMessage("Vous ne pouvez pas vous battre contre vous-même !").queue();
@@ -81,7 +79,18 @@ public class Bot extends ListenerAdapter {
 
         int hpPlayer = 1000;
         int hpOpponent = 1000;
-        int hitPlayer = getRandomNumberInRange(1, 100);
-        int hitOpponent = getRandomNumberInRange(1, 100);
+
+        while (hpPlayer > 0 && hpOpponent > 0) {
+            hpOpponent -= getRandomNumberInRange(1, 100);
+            hpPlayer -= getRandomNumberInRange(1, 100);
+        }
+        User winner = hpPlayer > 0 ? player : opponent;
+        // Message
+        event.reply(String.format("The duel between <@%s> and <@%s> is about to begin!", event.getUser().getId(), opponent.getId())).queue(interactionHook -> {
+            // On affiche le gagnant
+            interactionHook.sendMessage("The winner is <@" + winner.getId() + ">").queue();
+            scoreService.saveOrUpdateScore(winner.getId(), 1L);
+        });
+
     }
 }
